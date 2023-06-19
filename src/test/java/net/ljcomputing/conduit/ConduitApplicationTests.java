@@ -105,10 +105,7 @@ class ConduitApplicationTests {
     @Order(11)
     void retrieveCsvSource() {
         final DataContext context =
-                DataContext.builder()
-                        .url(
-                                "file:///home/jim/eclipse-workspace/net.ljcomputing/conduit/src/test/resources/data/insured.csv")
-                        .build();
+                DataContext.builder().url("http://localhost/~jim/data/insured.csv").build();
 
         try {
             log.debug("hasAdditionalProperties: {}", context.hasAdditionalProperties());
