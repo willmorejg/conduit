@@ -1,0 +1,31 @@
+application:
+    title: Database Parsing using FreeMarker
+    version: 0.0.1
+    output-directory: classpath:out/
+    format:
+        html:
+            template: html.ftl
+            extension: js
+        json:
+            template: json.ftl
+            extension: json
+        js:
+            template: jsTemplate.ftl
+            extension: js
+        class:
+            template: classTemplate.ftl
+            extension: java
+        xml:
+            template: xmlTemplate.ftl
+            extension: xml
+spring:
+  freemarker:
+    suffix: .ftl
+    cache: false
+    template-loader-path:
+      - classpath:/templates/
+#   datasource:
+#     url: jdbc:postgresql://localhost/nj_gis
+#     username: jim
+#     password: password
+#     driver-class-name: org.postgresql.Driver
