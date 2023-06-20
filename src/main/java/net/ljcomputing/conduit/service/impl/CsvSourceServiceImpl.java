@@ -31,6 +31,7 @@ import net.ljcomputing.conduit.exception.ConduitException;
 import net.ljcomputing.conduit.model.ConnectorContext;
 import net.ljcomputing.conduit.model.DataContext;
 import net.ljcomputing.conduit.model.DataContextProperties;
+import net.ljcomputing.conduit.model.Dataset;
 import net.ljcomputing.conduit.service.SourceService;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -96,6 +97,25 @@ public class CsvSourceServiceImpl extends AbstractSourceServiceImpl implements S
             }
 
             return records;
+        } catch (final Exception e) {
+            throw new ConduitException(e);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Dataset retrieveDataset(final DataContext context) throws ConduitException {
+        try {
+            init(context);
+            mapper = new CsvMapper();
+            final Dataset dataset = new Dataset();
+            MappingIterator<Map<String, Object>> it =
+                    mapper.readerFor(Map.class).with(schema).readValues(resource.getInputStream());
+            while (it.hasNext()) {
+                addMapToDataset(it.next(), dataset);
+            }
+
+            return dataset;
         } catch (final Exception e) {
             throw new ConduitException(e);
         }

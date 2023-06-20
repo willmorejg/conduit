@@ -29,6 +29,7 @@ import net.ljcomputing.conduit.exception.ConduitException;
 import net.ljcomputing.conduit.model.ConnectorProtocol;
 import net.ljcomputing.conduit.model.DataContext;
 import net.ljcomputing.conduit.model.DataContextProperties;
+import net.ljcomputing.conduit.model.Dataset;
 import net.ljcomputing.conduit.service.SourceService;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -79,7 +80,7 @@ class ConduitApplicationTests {
                         .driverClassName("org.postgresql.Driver")
                         .url("jdbc:postgresql://localhost:5432/insurance")
                         .user("jim")
-                        .query("select * from insured")
+                        .query("select id, given_name || ' ' || surname as \"name\" from insured")
                         .build();
 
         context.getProperties().setProperty("foo", "bar");
@@ -105,13 +106,16 @@ class ConduitApplicationTests {
     @Order(11)
     void retrieveCsvSource() {
         final DataContext context =
-                DataContext.builder().url("http://localhost/~jim/data/insured.csv").build();
+                DataContext.builder()
+                        .url("https://localhost.localdomain/~jim/data/insured.csv")
+                        .build();
 
         try {
             log.debug("hasAdditionalProperties: {}", context.hasAdditionalProperties());
             log.debug("foo: {}", context.getProperties().getProperty("foo", ""));
 
-            final List<Map<String, Object>> data = csvSourceService.retrieve(context);
+            // final List<Map<String, Object>> data = csvSourceService.retrieve(context);
+            final Dataset data = csvSourceService.retrieveDataset(context);
             log.debug("data: {}", data);
         } catch (ConduitException e) {
             log.error("Test failed: ", e);

@@ -20,11 +20,15 @@ James G Willmore - LJ Computing - (C) 2023
 */
 package net.ljcomputing.conduit.service.impl;
 
+import java.util.Map;
 import net.ljcomputing.conduit.connector.Connector;
 import net.ljcomputing.conduit.connector.impl.ConnectorFactory;
 import net.ljcomputing.conduit.model.ConnectorContext;
 import net.ljcomputing.conduit.model.ConnectorProtocol;
 import net.ljcomputing.conduit.model.DataContext;
+import net.ljcomputing.conduit.model.Dataset;
+import net.ljcomputing.conduit.model.DatasetRecord;
+import net.ljcomputing.conduit.model.DatasetRecordColumn;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractSourceServiceImpl {
@@ -35,5 +39,20 @@ public abstract class AbstractSourceServiceImpl {
         final ConnectorProtocol connectorProtocol = ConnectorProtocol.findByProtocol(protocol);
         final Connector connector = connectorFactory.locate(connectorProtocol);
         return connector.connect(context);
+    }
+
+    protected DatasetRecord convertMapToRecord(final Map<String, Object> map) {
+        final DatasetRecord record = new DatasetRecord();
+
+        map.entrySet().stream()
+                .forEach(
+                        el ->
+                                record.addColumn(
+                                        new DatasetRecordColumn(el.getKey(), el.getValue())));
+        return record;
+    }
+
+    protected void addMapToDataset(final Map<String, Object> map, final Dataset dataset) {
+        dataset.addRecord(convertMapToRecord(map));
     }
 }

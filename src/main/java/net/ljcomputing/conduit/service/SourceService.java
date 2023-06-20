@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import net.ljcomputing.conduit.exception.ConduitException;
 import net.ljcomputing.conduit.model.DataContext;
+import net.ljcomputing.conduit.model.Dataset;
 
 /** Interface defining a Source Service. */
 public interface SourceService {
@@ -43,4 +44,13 @@ public interface SourceService {
      * @throws ConduitException
      */
     List<Map<String, Object>> retrieve(DataContext context) throws ConduitException;
+
+    /**
+     * Retrieve the source data.
+     *
+     * @param context data context
+     * @return records retrieved from the source of data
+     * @throws ConduitException
+     */
+    Dataset retrieveDataset(DataContext context) throws ConduitException;
 }

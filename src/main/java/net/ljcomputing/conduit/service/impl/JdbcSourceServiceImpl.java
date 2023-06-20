@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 import net.ljcomputing.conduit.exception.ConduitException;
 import net.ljcomputing.conduit.model.ConnectorContext;
 import net.ljcomputing.conduit.model.DataContext;
+import net.ljcomputing.conduit.model.Dataset;
 import net.ljcomputing.conduit.service.SourceService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -49,6 +50,25 @@ public class JdbcSourceServiceImpl extends AbstractSourceServiceImpl implements 
             init(context);
             final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             return jdbcTemplate.queryForList(context.getQuery());
+        } catch (final Exception e) {
+            throw new ConduitException(e);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Dataset retrieveDataset(final DataContext context) throws ConduitException {
+        try {
+            init(context);
+            final Dataset dataset = new Dataset();
+
+            retrieve(context)
+                    .forEach(
+                            row -> {
+                                addMapToDataset(row, dataset);
+                            });
+
+            return dataset;
         } catch (final Exception e) {
             throw new ConduitException(e);
         }
