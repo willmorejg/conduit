@@ -32,16 +32,14 @@ import net.ljcomputing.conduit.exception.ConduitException;
 import net.ljcomputing.conduit.model.ConnectorContext;
 import net.ljcomputing.conduit.model.DataContext;
 import net.ljcomputing.conduit.model.DataContextProperties;
-import net.ljcomputing.conduit.model.Dataset;
 import net.ljcomputing.conduit.model.SourceType;
-import net.ljcomputing.conduit.service.SourceService;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 /** CSV Source Service Implementation. */
 @Service("csv")
 @Slf4j
-public class CsvSourceServiceImpl extends AbstractSourceServiceImpl implements SourceService {
+public class CsvSourceServiceImpl extends AbstractSourceServiceImpl {
     private CsvSchema schema;
     private CsvMapper mapper;
     private Resource resource;
@@ -113,25 +111,6 @@ public class CsvSourceServiceImpl extends AbstractSourceServiceImpl implements S
             }
 
             return records;
-        } catch (final Exception e) {
-            throw new ConduitException(e);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Dataset retrieveDataset(final DataContext context) throws ConduitException {
-        try {
-            init(context);
-            final Dataset dataset = new Dataset();
-
-            retrieve(context)
-                    .forEach(
-                            row -> {
-                                addMapToDataset(row, dataset);
-                            });
-
-            return dataset;
         } catch (final Exception e) {
             throw new ConduitException(e);
         }

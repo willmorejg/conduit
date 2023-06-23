@@ -23,15 +23,17 @@ package net.ljcomputing.conduit.service.impl;
 import java.util.Map;
 import net.ljcomputing.conduit.connector.Connector;
 import net.ljcomputing.conduit.connector.impl.ConnectorFactory;
+import net.ljcomputing.conduit.exception.ConduitException;
 import net.ljcomputing.conduit.model.ConnectorContext;
 import net.ljcomputing.conduit.model.ConnectorProtocol;
 import net.ljcomputing.conduit.model.DataContext;
 import net.ljcomputing.conduit.model.Dataset;
 import net.ljcomputing.conduit.model.DatasetRecord;
 import net.ljcomputing.conduit.model.DatasetRecordColumn;
+import net.ljcomputing.conduit.service.SourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractSourceServiceImpl {
+public abstract class AbstractSourceServiceImpl implements SourceService {
     @Autowired protected ConnectorFactory connectorFactory;
 
     protected ConnectorContext connect(final DataContext context) {
@@ -54,5 +56,24 @@ public abstract class AbstractSourceServiceImpl {
 
     protected void addMapToDataset(final Map<String, Object> map, final Dataset dataset) {
         dataset.addRecord(convertMapToRecord(map));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Dataset retrieveDataset(final DataContext context) throws ConduitException {
+        try {
+            init(context);
+            final Dataset dataset = new Dataset();
+
+            retrieve(context)
+                    .forEach(
+                            row -> {
+                                addMapToDataset(row, dataset);
+                            });
+
+            return dataset;
+        } catch (final Exception e) {
+            throw new ConduitException(e);
+        }
     }
 }

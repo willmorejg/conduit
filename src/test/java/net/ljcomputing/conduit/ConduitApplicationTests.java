@@ -100,13 +100,33 @@ class ConduitApplicationTests {
         final DataContext context =
                 DataContext.init(
                                 SourceType.CSV,
-                                "https://localhost.localdomain/~jim/data/insured.csv")
+                                "http://localhost.localdomain/~jim/data/insured.csv")
                         .build();
 
         try {
             context.getProperties().setProperty(DataContextProperties.DELIMITER.property(), "|");
             log.debug("hasAdditionalProperties: {}", context.hasAdditionalProperties());
 
+            final SourceService sourceService =
+                    sourceServiceFactory.locate(context.getSourceType());
+            final Dataset data = sourceService.retrieveDataset(context);
+            log.debug("data: {}", data);
+        } catch (ConduitException e) {
+            log.error("Test failed: ", e);
+        }
+    }
+
+    /** Test JSON data source retrieve. */
+    @Test
+    @Order(12)
+    void retrieveJsonSource() {
+        final DataContext context =
+                DataContext.init(
+                                SourceType.JSON,
+                                "https://localhost.localdomain/~jim/data/insured.json")
+                        .build();
+
+        try {
             final SourceService sourceService =
                     sourceServiceFactory.locate(context.getSourceType());
             final Dataset data = sourceService.retrieveDataset(context);

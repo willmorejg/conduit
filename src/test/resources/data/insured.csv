@@ -1,8 +1,8 @@
-id|givenName|middleName|surname|suffix
-1|Jane|Juliet|Doe|
-2|Lynn|Ellen|Pinard-Willmore|
-3|John||Smith|Jr
-4|James|George|Willmore|
-5|John|Patrick|Willmore|Sr
-6|Andy|Jospeh|Quinn|
-7|Jane||Defense|
+id,givenName,middleName,surname,suffix
+1,Jane,Juliet,Doe,
+2,Lynn,Ellen,Pinard-Willmore,
+3,John,,Smith,Jr
+4,James,George,Willmore,
+5,John,Patrick,Willmore,Sr
+6,Andy,Jospeh,Quinn,
+7,Jane,,Defense,

@@ -20,32 +20,38 @@ James G Willmore - LJ Computing - (C) 2023
 */
 package net.ljcomputing.conduit.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
-import javax.sql.DataSource;
 import net.ljcomputing.conduit.exception.ConduitException;
 import net.ljcomputing.conduit.model.ConnectorContext;
 import net.ljcomputing.conduit.model.DataContext;
 import net.ljcomputing.conduit.model.SourceType;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-/** JDBC Source Service Implementation. */
-@Service("jdbc")
-public class JdbcSourceServiceImpl extends AbstractSourceServiceImpl {
-    private DataSource dataSource;
+/** CSV Source Service Implementation. */
+@Service("json")
+public class JsonSourceServiceImpl extends AbstractSourceServiceImpl {
+    private ObjectMapper mapper;
+    private Resource resource;
 
     /** {@inheritDoc} */
     @Override
     public SourceType sourceType() {
-        return SourceType.JDBC;
+        return SourceType.JSON;
     }
 
     /** {@inheritDoc} */
     @Override
     public void init(final DataContext context) {
+        loadResource(context);
+    }
+
+    private void loadResource(final DataContext context) {
         final ConnectorContext connectorContext = connect(context);
-        this.dataSource = connectorContext.getDataSource();
+        this.resource = connectorContext.getResource();
     }
 
     /** {@inheritDoc} */
@@ -53,8 +59,12 @@ public class JdbcSourceServiceImpl extends AbstractSourceServiceImpl {
     public List<Map<String, Object>> retrieve(final DataContext context) throws ConduitException {
         try {
             init(context);
-            final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            return jdbcTemplate.queryForList(context.getQuery());
+            mapper = new ObjectMapper();
+            List<Map<String, Object>> records =
+                    mapper.readValue(
+                            resource.getInputStream(),
+                            new TypeReference<List<Map<String, Object>>>() {});
+            return records;
         } catch (final Exception e) {
             throw new ConduitException(e);
         }
