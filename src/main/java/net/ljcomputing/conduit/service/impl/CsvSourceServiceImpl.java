@@ -27,21 +27,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import net.ljcomputing.conduit.exception.ConduitException;
 import net.ljcomputing.conduit.model.ConnectorContext;
 import net.ljcomputing.conduit.model.DataContext;
 import net.ljcomputing.conduit.model.DataContextProperties;
 import net.ljcomputing.conduit.model.Dataset;
+import net.ljcomputing.conduit.model.SourceType;
 import net.ljcomputing.conduit.service.SourceService;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 /** CSV Source Service Implementation. */
 @Service("csv")
+@Slf4j
 public class CsvSourceServiceImpl extends AbstractSourceServiceImpl implements SourceService {
     private CsvSchema schema;
     private CsvMapper mapper;
     private Resource resource;
+
+    /** {@inheritDoc} */
+    @Override
+    public SourceType sourceType() {
+        return SourceType.CSV;
+    }
 
     /** {@inheritDoc} */
     @Override
@@ -58,6 +67,12 @@ public class CsvSourceServiceImpl extends AbstractSourceServiceImpl implements S
         } else {
             schema = CsvSchema.emptySchema().withHeader();
         }
+
+        final char columnSeparator =
+                context.getProperties()
+                        .getProperty(DataContextProperties.DELIMITER.property(), ",")
+                        .toCharArray()[0];
+        schema = schema.withColumnSeparator(columnSeparator);
 
         loadResource(context);
     }
@@ -93,6 +108,7 @@ public class CsvSourceServiceImpl extends AbstractSourceServiceImpl implements S
                     mapper.readerFor(Map.class).with(schema).readValues(resource.getInputStream());
             while (it.hasNext()) {
                 final Map<String, Object> rowAsMap = it.next();
+                log.debug("row: {}", rowAsMap);
                 records.add(rowAsMap);
             }
 
@@ -107,13 +123,13 @@ public class CsvSourceServiceImpl extends AbstractSourceServiceImpl implements S
     public Dataset retrieveDataset(final DataContext context) throws ConduitException {
         try {
             init(context);
-            mapper = new CsvMapper();
             final Dataset dataset = new Dataset();
-            MappingIterator<Map<String, Object>> it =
-                    mapper.readerFor(Map.class).with(schema).readValues(resource.getInputStream());
-            while (it.hasNext()) {
-                addMapToDataset(it.next(), dataset);
-            }
+
+            retrieve(context)
+                    .forEach(
+                            row -> {
+                                addMapToDataset(row, dataset);
+                            });
 
             return dataset;
         } catch (final Exception e) {

@@ -24,25 +24,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import net.ljcomputing.conduit.connector.Connector;
-import net.ljcomputing.conduit.model.ConnectorProtocol;
+import net.ljcomputing.conduit.model.SourceType;
+import net.ljcomputing.conduit.service.SourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class ConnectorFactory {
-    private final Map<ConnectorProtocol, Connector> connectors = new HashMap<>();
+public class SourceServiceFactory {
+    private final Map<SourceType, SourceService> sourceServiceTypes = new HashMap<>();
 
-    private ConnectorFactory(@Autowired final List<Connector> implemntations) {
+    private SourceServiceFactory(@Autowired final List<SourceService> implemntations) {
         implemntations.forEach(
                 c -> {
-                    connectors.put(c.supportedProtocol(), c);
-                    log.info("loaded connector for {} protocol", c.supportedProtocol());
+                    sourceServiceTypes.put(c.sourceType(), c);
+                    log.info("loaded source service for {} type", c.sourceType());
                 });
     }
 
-    public Connector locate(final ConnectorProtocol protocol) {
-        return connectors.get(protocol);
+    public SourceService locate(final SourceType type) {
+        return sourceServiceTypes.get(type);
     }
 }

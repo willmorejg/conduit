@@ -25,9 +25,17 @@ import java.util.Map;
 import net.ljcomputing.conduit.exception.ConduitException;
 import net.ljcomputing.conduit.model.DataContext;
 import net.ljcomputing.conduit.model.Dataset;
+import net.ljcomputing.conduit.model.SourceType;
 
 /** Interface defining a Source Service. */
 public interface SourceService {
+    /**
+     * The Source supported by the service.
+     *
+     * @return
+     */
+    SourceType sourceType();
+
     /**
      * Initialize a data context based service.
      *

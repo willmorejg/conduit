@@ -25,11 +25,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.List;
 import java.util.Map;
 import net.ljcomputing.conduit.connector.impl.ConnectorFactory;
+import net.ljcomputing.conduit.connector.impl.SourceServiceFactory;
 import net.ljcomputing.conduit.exception.ConduitException;
 import net.ljcomputing.conduit.model.ConnectorProtocol;
 import net.ljcomputing.conduit.model.DataContext;
 import net.ljcomputing.conduit.model.DataContextProperties;
 import net.ljcomputing.conduit.model.Dataset;
+import net.ljcomputing.conduit.model.SourceType;
 import net.ljcomputing.conduit.service.SourceService;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -38,7 +40,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -51,13 +52,7 @@ class ConduitApplicationTests {
 
     @Autowired private ConnectorFactory connectorFactory;
 
-    @Autowired
-    @Qualifier("jdbc")
-    private SourceService jdbcSourceService;
-
-    @Autowired
-    @Qualifier("csv")
-    private SourceService csvSourceService;
+    @Autowired private SourceServiceFactory sourceServiceFactory;
 
     /** Test to make sure application starts correctly. */
     @Test
@@ -69,6 +64,7 @@ class ConduitApplicationTests {
     @Order(2)
     void connectorFactoryTest() {
         assertNotNull(connectorFactory.locate(ConnectorProtocol.JDBC));
+        assertNotNull(sourceServiceFactory.locate(SourceType.JDBC));
     }
 
     /** Test JDBC data source retrieve. */
@@ -76,25 +72,21 @@ class ConduitApplicationTests {
     @Order(10)
     void retrieveJdbcSource() {
         final DataContext context =
-                DataContext.builder()
+                DataContext.init(SourceType.JDBC, "jdbc:postgresql://localhost:5432/insurance")
                         .driverClassName("org.postgresql.Driver")
-                        .url("jdbc:postgresql://localhost:5432/insurance")
                         .user("jim")
                         .query("select id, given_name || ' ' || surname as \"name\" from insured")
                         .build();
 
         context.getProperties().setProperty("foo", "bar");
-        context.getProperties().setProperty(DataContextProperties.DELIMITER.property(), ",");
 
         try {
             log.debug("hasAdditionalProperties: {}", context.hasAdditionalProperties());
             log.debug("foo: {}", context.getProperties().getProperty("foo", ""));
-            log.debug(
-                    "{} : {}",
-                    DataContextProperties.DELIMITER.property(),
-                    context.getProperties()
-                            .getProperty(DataContextProperties.DELIMITER.property(), ""));
-            final List<Map<String, Object>> data = jdbcSourceService.retrieve(context);
+
+            final SourceService sourceService =
+                    sourceServiceFactory.locate(context.getSourceType());
+            final List<Map<String, Object>> data = sourceService.retrieve(context);
             log.debug("data: {}", data);
         } catch (ConduitException e) {
             log.error("Test failed: ", e);
@@ -106,16 +98,18 @@ class ConduitApplicationTests {
     @Order(11)
     void retrieveCsvSource() {
         final DataContext context =
-                DataContext.builder()
-                        .url("https://localhost.localdomain/~jim/data/insured.csv")
+                DataContext.init(
+                                SourceType.CSV,
+                                "https://localhost.localdomain/~jim/data/insured.csv")
                         .build();
 
         try {
+            context.getProperties().setProperty(DataContextProperties.DELIMITER.property(), "|");
             log.debug("hasAdditionalProperties: {}", context.hasAdditionalProperties());
-            log.debug("foo: {}", context.getProperties().getProperty("foo", ""));
 
-            // final List<Map<String, Object>> data = csvSourceService.retrieve(context);
-            final Dataset data = csvSourceService.retrieveDataset(context);
+            final SourceService sourceService =
+                    sourceServiceFactory.locate(context.getSourceType());
+            final Dataset data = sourceService.retrieveDataset(context);
             log.debug("data: {}", data);
         } catch (ConduitException e) {
             log.error("Test failed: ", e);

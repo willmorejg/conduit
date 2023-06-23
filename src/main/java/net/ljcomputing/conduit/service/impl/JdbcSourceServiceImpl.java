@@ -27,6 +27,7 @@ import net.ljcomputing.conduit.exception.ConduitException;
 import net.ljcomputing.conduit.model.ConnectorContext;
 import net.ljcomputing.conduit.model.DataContext;
 import net.ljcomputing.conduit.model.Dataset;
+import net.ljcomputing.conduit.model.SourceType;
 import net.ljcomputing.conduit.service.SourceService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,12 @@ import org.springframework.stereotype.Service;
 @Service("jdbc")
 public class JdbcSourceServiceImpl extends AbstractSourceServiceImpl implements SourceService {
     private DataSource dataSource;
+
+    /** {@inheritDoc} */
+    @Override
+    public SourceType sourceType() {
+        return SourceType.JDBC;
+    }
 
     /** {@inheritDoc} */
     @Override

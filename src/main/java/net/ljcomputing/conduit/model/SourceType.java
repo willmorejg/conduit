@@ -21,44 +21,43 @@ James G Willmore - LJ Computing - (C) 2023
 package net.ljcomputing.conduit.model;
 
 /** Enum of acceptible / supported transfer protocols. */
-public enum ConnectorProtocol {
+public enum SourceType {
     JDBC("jdbc"),
-    FILE("file"),
-    HTTP("http"),
-    HTTPS("https");
+    CSV("csv"),
+    JSON("json");
 
-    /** String representation of the protocol (ex. file:///tmp/file.txt will be file) */
-    private String protocol;
+    /** Source type (ex. JDBC, CSV, JSON, etc.) */
+    private String type;
 
     /**
      * Private constructor.
      *
-     * @param protocol
+     * @param type
      */
-    private ConnectorProtocol(final String protocol) {
-        this.protocol = protocol;
+    private SourceType(final String type) {
+        this.type = type;
     }
 
     /**
-     * The String representation of the given protocol.
+     * The String representation of the given type.
      *
      * @return
      */
-    public String protocol() {
-        return protocol;
+    public String type() {
+        return type;
     }
 
     /**
-     * Find the ConectorProtocol by the given protocol.
+     * Find the Source Type by the given type.
      *
      * @param value
      * @return
      */
-    public static ConnectorProtocol findByProtocol(final String value) {
-        ConnectorProtocol result = null;
+    public static SourceType findByProtocol(final String value) {
+        SourceType result = null;
 
-        for (final ConnectorProtocol current : values()) {
-            if (value.equals(current.protocol())) {
+        for (final SourceType current : values()) {
+            if (value.equals(current.type())) {
                 result = current;
             }
         }

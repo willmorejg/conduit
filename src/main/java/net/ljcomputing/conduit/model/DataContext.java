@@ -24,20 +24,26 @@ import java.util.Properties;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NonNull;
 
 /**
  * Data context model. Contains the definition of a given data context (ex. url, user, password,
  * etc.)
  */
 @Data
-@Builder
+@Builder(builderMethodName = "hiddenBuilder")
 public class DataContext {
-    private String url;
+    @NonNull private final SourceType sourceType;
+    @NonNull private final String url;
     private String user;
     private String password;
     private String driverClassName;
     private String query;
     @Getter private final Properties properties = new Properties();
+
+    public static DataContextBuilder init(final SourceType sourceType, final String url) {
+        return hiddenBuilder().sourceType(sourceType).url(url);
+    }
 
     /**
      * Check for additional context properties.
