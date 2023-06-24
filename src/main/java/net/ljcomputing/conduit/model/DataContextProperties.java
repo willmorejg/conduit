@@ -20,16 +20,28 @@ James G Willmore - LJ Computing - (C) 2023
 */
 package net.ljcomputing.conduit.model;
 
+/** Enumeration of all additional data context properties available. */
 public enum DataContextProperties {
-    DELIMITER("delimiter"),
-    COLUMNS("columns");
+    COLUMNS("columns"),
+    DELIMITER("delimiter");
 
+    /** Name of the property. */
     private String property;
 
+    /**
+     * Constructor.
+     *
+     * @param property
+     */
     private DataContextProperties(final String property) {
         this.property = property;
     }
 
+    /**
+     * The property associated with the data context enumeration.
+     *
+     * @return
+     */
     public String property() {
         return property;
     }

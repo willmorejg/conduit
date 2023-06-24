@@ -29,11 +29,22 @@ import net.ljcomputing.conduit.service.SourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/** Source service factory. */
 @Component
 @Slf4j
 public class SourceServiceFactory {
+    /**
+     * Map of available {@link net.ljcomputing.conduit.service.SourceService source services} by
+     * {@link net.ljcomputing.conduit.model.SourceType supported source type}.
+     */
     private final Map<SourceType, SourceService> sourceServiceTypes = new HashMap<>();
 
+    /**
+     * Private constructor that populates the factory with all availabe source service
+     * implementations.
+     *
+     * @param implemntations
+     */
     private SourceServiceFactory(@Autowired final List<SourceService> implemntations) {
         implemntations.forEach(
                 c -> {
@@ -42,6 +53,13 @@ public class SourceServiceFactory {
                 });
     }
 
+    /**
+     * Locate the {@link net.ljcomputing.conduit.service.SourceService source service} using the
+     * given {@link net.ljcomputing.conduit.model.SourceType supported source type}.
+     *
+     * @param type
+     * @return
+     */
     public SourceService locate(final SourceType type) {
         return sourceServiceTypes.get(type);
     }

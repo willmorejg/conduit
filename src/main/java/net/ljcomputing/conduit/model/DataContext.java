@@ -41,6 +41,13 @@ public class DataContext {
     private String query;
     @Getter private final Properties properties = new Properties();
 
+    /**
+     * The builder's initialization method.
+     *
+     * @param sourceType
+     * @param url
+     * @return
+     */
     public static DataContextBuilder init(final SourceType sourceType, final String url) {
         return hiddenBuilder().sourceType(sourceType).url(url);
     }
@@ -54,6 +61,12 @@ public class DataContext {
         return !properties.isEmpty();
     }
 
+    /**
+     * Returns the protocol string of the data context (ex. if the url value is
+     * jdbc:postgresql://localhost:5432/insurance this method will return jdbc).
+     *
+     * @return
+     */
     public String protocolString() {
         return getUrl().substring(0, getUrl().indexOf(":"));
     }

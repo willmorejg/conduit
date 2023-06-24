@@ -29,11 +29,21 @@ import net.ljcomputing.conduit.model.ConnectorProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/** Connector factory. */
 @Component
 @Slf4j
 public class ConnectorFactory {
+    /**
+     * Map of available {@link net.ljcomputing.conduit.connector.Connector connectors} by {@link
+     * net.ljcomputing.conduit.model.ConnectorProtocol connector protocol}.
+     */
     private final Map<ConnectorProtocol, Connector> connectors = new HashMap<>();
 
+    /**
+     * Private constructor that populates the factory with all availabe connector implementations.
+     *
+     * @param implemntations
+     */
     private ConnectorFactory(@Autowired final List<Connector> implemntations) {
         implemntations.forEach(
                 c -> {
@@ -42,6 +52,13 @@ public class ConnectorFactory {
                 });
     }
 
+    /**
+     * Locate the {@link net.ljcomputing.conduit.connector.Connector connector} using the given
+     * {@link net.ljcomputing.conduit.model.ConnectorProtocol connector protocol}.
+     *
+     * @param protocol
+     * @return
+     */
     public Connector locate(final ConnectorProtocol protocol) {
         return connectors.get(protocol);
     }
