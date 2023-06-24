@@ -35,4 +35,13 @@ public class DatasetColumnDefinition {
 
     /** Order of the column in the dataset. */
     private int order;
+
+    /**
+     * Return the SQL bind variable (ex. name becomes :name).
+     * 
+     * @return
+     */
+    public String sqlBindVariable() {
+        return String.format(" :%s", name);
+    }
 }
