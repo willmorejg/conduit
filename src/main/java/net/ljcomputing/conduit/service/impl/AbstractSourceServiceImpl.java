@@ -106,7 +106,6 @@ public abstract class AbstractSourceServiceImpl implements SourceService {
     @Override
     public Dataset retrieveDataset(final DataContext context) throws ConduitException {
         try {
-            init(context);
             final Dataset dataset = new Dataset();
 
             retrieve(context)
