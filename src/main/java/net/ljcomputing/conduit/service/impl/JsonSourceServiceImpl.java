@@ -46,7 +46,7 @@ public class JsonSourceServiceImpl extends AbstractSourceServiceImpl {
     /** {@inheritDoc} */
     @Override
     public void init(final DataContext context) {
-        loadResource(context);
+        // empty implementation at this time
     }
 
     private void loadResource(final DataContext context) {
@@ -59,6 +59,7 @@ public class JsonSourceServiceImpl extends AbstractSourceServiceImpl {
     public List<Map<String, Object>> retrieve(final DataContext context) throws ConduitException {
         try {
             init(context);
+            loadResource(context);
             mapper = new ObjectMapper();
             List<Map<String, Object>> records =
                     mapper.readValue(
