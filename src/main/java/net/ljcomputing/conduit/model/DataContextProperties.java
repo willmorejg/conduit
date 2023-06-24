@@ -23,7 +23,9 @@ package net.ljcomputing.conduit.model;
 /** Enumeration of all additional data context properties available. */
 public enum DataContextProperties {
     COLUMNS("columns"),
-    DELIMITER("delimiter");
+    DELIMITER("delimiter"),
+    TARGET_TABLE("target_table"),
+    USE_BIND_VARIABLES("use_bind_variables");
 
     /** Name of the property. */
     private String property;

@@ -62,6 +62,27 @@ public class DataContext {
     }
 
     /**
+     * Get the given property. Default value will be an empty String if not defined.
+     *
+     * @param property
+     * @return
+     */
+    public String getProperty(final DataContextProperties property) {
+        return getProperty(property, "");
+    }
+
+    /**
+     * Get the given property. Default value will be the given default value if not defined.
+     *
+     * @param property
+     * @param defaultValue
+     * @return
+     */
+    public String getProperty(final DataContextProperties property, final String defaultValue) {
+        return getProperties().getProperty(property.property(), defaultValue);
+    }
+
+    /**
      * Returns the protocol string of the data context (ex. if the url value is
      * jdbc:postgresql://localhost:5432/insurance this method will return jdbc).
      *

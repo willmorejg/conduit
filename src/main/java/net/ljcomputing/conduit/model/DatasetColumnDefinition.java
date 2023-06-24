@@ -38,10 +38,10 @@ public class DatasetColumnDefinition {
 
     /**
      * Return the SQL bind variable (ex. name becomes :name).
-     * 
+     *
      * @return
      */
     public String sqlBindVariable() {
-        return String.format(" :%s", name);
+        return String.format(":%s", name);
     }
 }

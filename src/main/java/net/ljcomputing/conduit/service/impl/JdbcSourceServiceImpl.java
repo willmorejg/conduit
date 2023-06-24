@@ -23,15 +23,20 @@ package net.ljcomputing.conduit.service.impl;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
+import lombok.extern.slf4j.Slf4j;
 import net.ljcomputing.conduit.exception.ConduitException;
 import net.ljcomputing.conduit.model.ConnectorContext;
 import net.ljcomputing.conduit.model.DataContext;
+import net.ljcomputing.conduit.model.DataContextProperties;
+import net.ljcomputing.conduit.model.Dataset;
 import net.ljcomputing.conduit.model.SourceType;
+import net.ljcomputing.conduit.utils.SqlStatementUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 /** JDBC Source Service Implementation. */
 @Service("jdbc")
+@Slf4j
 public class JdbcSourceServiceImpl extends AbstractSourceServiceImpl {
     private DataSource dataSource;
 
@@ -55,6 +60,42 @@ public class JdbcSourceServiceImpl extends AbstractSourceServiceImpl {
             init(context);
             final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             return jdbcTemplate.queryForList(context.getQuery());
+        } catch (final Exception e) {
+            throw new ConduitException(e);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void insertDataset(final DataContext context, final Dataset dataset)
+            throws ConduitException {
+        try {
+            init(context);
+
+            final String table = context.getProperty(DataContextProperties.TARGET_TABLE);
+
+            final boolean useBindVariables =
+                    Boolean.getBoolean(
+                            context.getProperty(DataContextProperties.USE_BIND_VARIABLES, "true"));
+
+            final String sql =
+                    SqlStatementUtils.buildInsertStatement(
+                            table, dataset.getColumnDefinitions(), useBindVariables, "id");
+            final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+            dataset.getRecords().stream()
+                    .forEach(
+                            r -> {
+                                log.debug("record: {}", r.getColumns());
+                                log.debug(
+                                        "{} {}",
+                                        r.getColumns().get(1).getValue(),
+                                        r.getColumns().get(2).getValue());
+                                jdbcTemplate.update(
+                                        sql,
+                                        r.getColumns().get(1).getValue(),
+                                        r.getColumns().get(2).getValue());
+                            });
         } catch (final Exception e) {
             throw new ConduitException(e);
         }

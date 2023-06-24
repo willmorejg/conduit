@@ -22,6 +22,8 @@ package net.ljcomputing.conduit;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import net.ljcomputing.conduit.connector.impl.ConnectorFactory;
@@ -31,8 +33,10 @@ import net.ljcomputing.conduit.model.ConnectorProtocol;
 import net.ljcomputing.conduit.model.DataContext;
 import net.ljcomputing.conduit.model.DataContextProperties;
 import net.ljcomputing.conduit.model.Dataset;
+import net.ljcomputing.conduit.model.DatasetColumnDefinition;
 import net.ljcomputing.conduit.model.SourceType;
 import net.ljcomputing.conduit.service.SourceService;
+import net.ljcomputing.conduit.utils.SqlStatementUtils;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -65,6 +69,24 @@ class ConduitApplicationTests {
     void connectorFactoryTest() {
         assertNotNull(connectorFactory.locate(ConnectorProtocol.JDBC));
         assertNotNull(sourceServiceFactory.locate(SourceType.JDBC));
+    }
+
+    /** Test connector factory. */
+    @Test
+    @Order(3)
+    void sqlUtilitiesTest() {
+        final List<DatasetColumnDefinition> columnDefinitions = new ArrayList<>();
+        int order = 0;
+
+        columnDefinitions.add(new DatasetColumnDefinition("id", String.class, ++order));
+        columnDefinitions.add(new DatasetColumnDefinition("full_name", String.class, ++order));
+        columnDefinitions.add(new DatasetColumnDefinition("birth_date", Date.class, ++order));
+
+        String sql = SqlStatementUtils.buildInsertStatement("foo", columnDefinitions, true, "id");
+        log.debug("sql: {}", sql);
+
+        sql = SqlStatementUtils.buildInsertStatement("foo", columnDefinitions, false, "id");
+        log.debug("sql: {}", sql);
     }
 
     /** Test JDBC data source retrieve. */
@@ -131,6 +153,48 @@ class ConduitApplicationTests {
                     sourceServiceFactory.locate(context.getSourceType());
             final Dataset data = sourceService.retrieveDataset(context);
             log.debug("data: {}", data);
+        } catch (ConduitException e) {
+            log.error("Test failed: ", e);
+        }
+    }
+
+    /** Test JSON data source insert into JDBC data source. */
+    @Test
+    @Order(20)
+    void jsonSourceJdbcTarget() {
+        final DataContext sourceContext =
+                DataContext.init(SourceType.JDBC, "jdbc:postgresql://localhost:5432/insurance")
+                        .driverClassName("org.postgresql.Driver")
+                        .user("jim")
+                        .query(
+                                "select id, given_name || '-x' as given_name, surname || '-x'"
+                                        + " as surname from insured")
+                        .build();
+
+        final DataContext targetContext =
+                DataContext.init(SourceType.JDBC, "jdbc:postgresql://localhost:5432/insurance")
+                        .driverClassName("org.postgresql.Driver")
+                        .user("jim")
+                        .build();
+
+        targetContext
+                .getProperties()
+                .setProperty(DataContextProperties.TARGET_TABLE.property(), "spinsured");
+
+        targetContext
+                .getProperties()
+                .setProperty(DataContextProperties.USE_BIND_VARIABLES.property(), "true");
+
+        try {
+            final SourceService sourceService =
+                    sourceServiceFactory.locate(sourceContext.getSourceType());
+            final SourceService targetService =
+                    sourceServiceFactory.locate(targetContext.getSourceType());
+            final Dataset data = sourceService.retrieveDataset(sourceContext);
+
+            log.debug("data: {}", data);
+
+            targetService.insertDataset(targetContext, data);
         } catch (ConduitException e) {
             log.error("Test failed: ", e);
         }

@@ -61,4 +61,14 @@ public interface SourceService {
      * @throws ConduitException
      */
     Dataset retrieveDataset(DataContext context) throws ConduitException;
+
+    /**
+     * Insert the given {@link net.ljcomputing.conduit.model.Dataset Dataset} into the given data
+     * source.
+     *
+     * @param context
+     * @param dataset
+     * @throws ConduitException
+     */
+    void insertDataset(DataContext context, Dataset dataset) throws ConduitException;
 }

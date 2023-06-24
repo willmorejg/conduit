@@ -124,4 +124,10 @@ public abstract class AbstractSourceServiceImpl implements SourceService {
             throw new ConduitException(e);
         }
     }
+
+    @Override
+    public void insertDataset(final DataContext context, final Dataset dataset)
+            throws ConduitException {
+        throw new ConduitException("Not implemented");
+    }
 }

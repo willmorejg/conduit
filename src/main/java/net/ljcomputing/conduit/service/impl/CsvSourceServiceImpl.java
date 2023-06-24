@@ -67,22 +67,17 @@ public class CsvSourceServiceImpl extends AbstractSourceServiceImpl {
         }
 
         final char columnSeparator =
-                context.getProperties()
-                        .getProperty(DataContextProperties.DELIMITER.property(), ",")
-                        .toCharArray()[0];
+                context.getProperty(DataContextProperties.DELIMITER, ",").toCharArray()[0];
         schema = schema.withColumnSeparator(columnSeparator);
     }
 
     private boolean columnsPropertyPresent(final DataContext context) {
         return context.hasAdditionalProperties()
-                && !context.getProperties()
-                        .getProperty(DataContextProperties.COLUMNS.property(), "")
-                        .isEmpty();
+                && !context.getProperty(DataContextProperties.COLUMNS).isEmpty();
     }
 
     private String[] getColumns(final DataContext context) {
-        final String columnsProperty =
-                context.getProperties().getProperty(DataContextProperties.COLUMNS.property());
+        final String columnsProperty = context.getProperty(DataContextProperties.COLUMNS);
         final String[] columns = columnsProperty.split(",");
         Arrays.parallelSetAll(columns, (i) -> columns[i].trim());
         return columns;
