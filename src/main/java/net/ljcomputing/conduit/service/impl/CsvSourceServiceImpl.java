@@ -71,8 +71,6 @@ public class CsvSourceServiceImpl extends AbstractSourceServiceImpl {
                         .getProperty(DataContextProperties.DELIMITER.property(), ",")
                         .toCharArray()[0];
         schema = schema.withColumnSeparator(columnSeparator);
-
-        loadResource(context);
     }
 
     private boolean columnsPropertyPresent(final DataContext context) {
@@ -100,6 +98,7 @@ public class CsvSourceServiceImpl extends AbstractSourceServiceImpl {
     public List<Map<String, Object>> retrieve(final DataContext context) throws ConduitException {
         try {
             init(context);
+            loadResource(context);
             mapper = new CsvMapper();
             final List<Map<String, Object>> records = new ArrayList<>();
             MappingIterator<Map<String, Object>> it =
