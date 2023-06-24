@@ -21,6 +21,7 @@ James G Willmore - LJ Computing - (C) 2023
 package net.ljcomputing.conduit.service.impl;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.ljcomputing.conduit.connector.Connector;
 import net.ljcomputing.conduit.connector.impl.ConnectorFactory;
 import net.ljcomputing.conduit.exception.ConduitException;
@@ -81,12 +82,16 @@ public abstract class AbstractSourceServiceImpl implements SourceService {
      */
     protected void addColumnDefinitionsToDataset(
             final Map<String, Object> map, final Dataset dataset) {
+        final AtomicInteger count = new AtomicInteger(0);
+
         map.entrySet().stream()
                 .forEach(
                         el -> {
                             dataset.addColumnDefinition(
                                     new DatasetColumnDefinition(
-                                            el.getKey(), el.getValue().getClass()));
+                                            el.getKey(),
+                                            el.getValue().getClass(),
+                                            count.incrementAndGet()));
                         });
     }
 

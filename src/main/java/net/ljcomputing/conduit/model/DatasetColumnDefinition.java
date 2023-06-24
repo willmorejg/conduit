@@ -32,4 +32,7 @@ public class DatasetColumnDefinition {
 
     /** The datatype {@link java.lang.Class Class} of the defined column. */
     private final Class<?> datatypeClass;
+
+    /** Order of the column in the dataset. */
+    private int order;
 }
