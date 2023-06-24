@@ -22,14 +22,47 @@ package net.ljcomputing.conduit.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.Data;
 import lombok.Getter;
 
+/** Model representing a dataset. */
 @Data
 public class Dataset {
+    /** Dataset column definitions. */
+    @Getter private final List<DatasetColumnDefinition> columnDefinitions = new ArrayList<>();
+
+    /** Dataset records. */
     @Getter private final List<DatasetRecord> records = new ArrayList<>();
 
+    /** Add a record to the dataset. */
     public void addRecord(final DatasetRecord record) {
         getRecords().add(record);
+    }
+
+    /**
+     * Return true if the dataset contains the column definition by name.
+     *
+     * @param datasetColumnDefinition
+     * @return
+     */
+    public boolean hasColumnDefinition(final DatasetColumnDefinition datasetColumnDefinition) {
+        final Optional<DatasetColumnDefinition> result =
+                columnDefinitions.stream()
+                        .filter(el -> datasetColumnDefinition.getName().equals(el.getName()))
+                        .findFirst();
+        return result.isPresent();
+    }
+
+    /**
+     * Add the given column definition to the dataset only if the given column definition's name is
+     * not already added to the dataset's column definitions.
+     *
+     * @param datasetColumnDefinition
+     */
+    public void addColumnDefinition(final DatasetColumnDefinition datasetColumnDefinition) {
+        if (!hasColumnDefinition(datasetColumnDefinition)) {
+            columnDefinitions.add(datasetColumnDefinition);
+        }
     }
 }

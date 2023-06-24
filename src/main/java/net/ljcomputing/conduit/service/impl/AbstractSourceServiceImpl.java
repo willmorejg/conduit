@@ -28,14 +28,24 @@ import net.ljcomputing.conduit.model.ConnectorContext;
 import net.ljcomputing.conduit.model.ConnectorProtocol;
 import net.ljcomputing.conduit.model.DataContext;
 import net.ljcomputing.conduit.model.Dataset;
+import net.ljcomputing.conduit.model.DatasetColumnDefinition;
 import net.ljcomputing.conduit.model.DatasetRecord;
 import net.ljcomputing.conduit.model.DatasetRecordColumn;
 import net.ljcomputing.conduit.service.SourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/** Abstract dataset source service implementation. */
 public abstract class AbstractSourceServiceImpl implements SourceService {
+    /** The {@link net.ljcomputing.conduit.connector.impl.ConnectorFactory ConnectorFactory}. */
     @Autowired protected ConnectorFactory connectorFactory;
 
+    /**
+     * Connect to a datasource using the given {@link net.ljcomputing.conduit.model.DataContext
+     * context}.
+     *
+     * @param context
+     * @return
+     */
     protected ConnectorContext connect(final DataContext context) {
         final String protocol = context.protocolString();
         final ConnectorProtocol connectorProtocol = ConnectorProtocol.findByProtocol(protocol);
@@ -43,19 +53,53 @@ public abstract class AbstractSourceServiceImpl implements SourceService {
         return connector.connect(context);
     }
 
+    /**
+     * Convert the given {@link java.util.Map map} to a {@link
+     * net.ljcomputing.conduit.model.DatasetRecord dataset record}.
+     *
+     * @param map
+     * @return
+     */
     protected DatasetRecord convertMapToRecord(final Map<String, Object> map) {
         final DatasetRecord record = new DatasetRecord();
 
         map.entrySet().stream()
                 .forEach(
-                        el ->
-                                record.addColumn(
-                                        new DatasetRecordColumn(el.getKey(), el.getValue())));
+                        el -> {
+                            record.addColumn(new DatasetRecordColumn(el.getKey(), el.getValue()));
+                        });
         return record;
     }
 
+    /**
+     * Add {@link net.ljcomputing.conduit.model.DatasetColumnDefinition column definitions} to the
+     * given {@link net.ljcomputing.conduit.model.Dataset dataset} using the given {@link
+     * java.util.Map map}.
+     *
+     * @param map
+     * @param dataset
+     */
+    protected void addColumnDefinitionsToDataset(
+            final Map<String, Object> map, final Dataset dataset) {
+        map.entrySet().stream()
+                .forEach(
+                        el -> {
+                            dataset.addColumnDefinition(
+                                    new DatasetColumnDefinition(
+                                            el.getKey(), el.getValue().getClass()));
+                        });
+    }
+
+    /**
+     * Add the given {@link java.util.Map map} to the given {@link
+     * net.ljcomputing.conduit.model.Dataset dataset}
+     *
+     * @param map
+     * @param dataset
+     */
     protected void addMapToDataset(final Map<String, Object> map, final Dataset dataset) {
         dataset.addRecord(convertMapToRecord(map));
+        addColumnDefinitionsToDataset(map, dataset);
     }
 
     /** {@inheritDoc} */
